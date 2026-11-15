@@ -1,7 +1,7 @@
 # Idea: the day coach (working title)
 
 > Living document: it describes **what** we want to build and **why**. Project terms are defined in [GLOSSARY.md](GLOSSARY.md); reasoned technical decisions live in [docs/adr/](docs/adr/); work to do lives in the GitHub issues.
-> Status: **v4**: app type and data storage decided (2026-11-01); focus principles and the summit added (2026-11-01).
+> Status: **v5**: iteration 1 designed in detail and split into three usable slices (2026-11-15); app type and data storage decided, focus principles and the summit added (2026-11-01).
 
 ## The essence
 
@@ -16,16 +16,16 @@ A desktop app that guides the day in pomodoros. Every task is written as an outc
 - **Key tasks are broken down until every step is as small as a quick task.** Key tasks move things forward but pay off slowly, so they tend to be avoided; small steps turn them into visible progress every pomodoro. The best working days are the ones where you feel you moved forward a little.
 - **Quick tasks are not waste.** They give a quick sense of progress and fill the gaps between other commitments; they can be batched into a single pomodoro.
 - **Estimates change along the way.** If a task needs more or fewer pomodoros than expected, you adjust it while you work.
-- **Ideas about focus are tested, not taken on faith.** Outcomes, breaking work down, key and quick tasks, morning planning: research checks whether they hold and what else the evidence suggests.
+- **Ideas about focus are tested, not taken on faith.** Outcomes, breaking work down, key and quick tasks, morning planning: research checks whether they hold and what else the evidence suggests. The same goes for the categories in the glossary (key task, quick task, …): they are working hypotheses, so the app must not lock them in too rigidly.
 - **It works for its author first**, on a Mac, then everything else. Open source project.
 
 ## The elements
 
-**Task.** A title written as an outcome, an area (e.g. work or personal), an estimate in pomodoros, optional steps with their own estimates, notes. A task is either a key task (important, large, slow to pay off: it gets broken into steps) or a quick task (a few minutes, fills the gaps).
+**Task.** A title written as an outcome, an area (e.g. work or personal), an estimate in pomodoros, optional steps (a checklist, without estimates of their own), details. A task can be a key task (important, large, slow to pay off: it gets broken into steps) or a quick task (a few minutes, fills the gaps); both are working hypotheses (see the principles).
 
 **AI sessions.** Not all work is a concrete task: defining, tidying up and consolidating take time too. This also becomes a task, for example "tidy-up with the AI, 1 pomodoro", ideally with an expected outcome ("this week's key tasks broken into steps"). When it starts, the app could open the AI tool directly on the right project.
 
-**The day.** In the morning you declare the pomodoros available (e.g. 8 for work + 4 personal) and choose, among the ready tasks, what to do today and in what order. The guiding question: which one, two, at most three things would make today a success, the ones your future self will thank you for? Without AI by default; with AI if it proves useful.
+**The day.** In the morning you declare the pomodoros available (e.g. 8 for work + 4 personal) and choose, among the open tasks, what to do today and in what order. The guiding question: which one, two, at most three things would make today a success, the ones your future self will thank you for? Without AI by default; with AI if it proves useful.
 
 **Execution.** You start a pomodoro on a task: the timer starts and you see the current step. At the end you write a short note, tick off the steps done, and adjust the estimate.
 
@@ -44,6 +44,7 @@ A desktop app that guides the day in pomodoros. Every task is written as an outc
 - **Data in an SQLite database on the user's Mac**, never in the code repository (which is public). The AI reads and changes the data through tools exposed by the app, not by writing to the data directly ([ADR 0002](docs/adr/0002-data-in-sqlite.md)).
 - **Available time declared by hand** every morning, in pomodoros. No integration with external calendars in the first version, and no calendar blocks for the team.
 - **Apple Reminders are not needed in the first version.** They will be the first external source; later both read and write.
+- **Time is stored in minutes; the pomodoro is only how it is shown**, so changing the block length or moving to flexible blocks needs no data migration ([ADR 0003](docs/adr/0003-time-stored-in-minutes.md)).
 - **Audio is out of the first version**: for now audio files are imported by hand. The audio flow will be designed from scratch.
 
 ## Roadmap (confirmed 2026-11-01)
@@ -51,19 +52,16 @@ A desktop app that guides the day in pomodoros. Every task is written as an outc
 Like sprints: each iteration adds a usable piece.
 
 ### Iteration 1: the pomodoro app
-No AI and no external sources. Goal: actually use it every day for work.
+No AI and no external sources. Goal: actually use it every day for work. Designed in detail on 2026-11-15 and built in three slices, each one usable on its own; each slice's GitHub issue holds its spec.
 
-- Task list: create, edit, change area. Title written as an outcome, optional steps.
-- Estimate in pomodoros per task (and per step), editable along the way.
-- Areas (work, personal) as containers with a daily pomodoro budget; tasks inside an area are optional.
-- The day: declare the pomodoros available per area, choose the ready tasks and their order.
-- Execution: start a pomodoro on a task or a step, work and break timer, current step in view.
-- End of pomodoro: free-form note, steps completed, estimate updated.
-- History: pomodoros done per task, against the estimate; automatic summary of the day.
-- Data in a local SQLite database; the schema is designed from the start so the app can prepare a compact summary for the AI.
+- **1a, timer and areas** (#11): areas with a colour and a default daily budget; fixed work and break timer from the menu bar and the window; end-of-pomodoro note; counters per area; interrupted pomodoros counted by the minutes worked; pomodoros added or fixed by hand.
+- **1b, tasks and steps** (#12): tasks written as outcomes, with optional estimate and key flag; steps as a checklist, current step in view; end-of-pomodoro form with steps completed, next step, note and estimate; estimate history and the past ratio of actual to estimated work.
+- **1c, day plan and day recap** (#13): optional morning plan, one ordered list across areas, pomodoros for today per task, neutral counters, "what could interrupt me today?"; the day recap as an always up-to-date Today view.
+
+Set aside for after iteration 1: flexible work blocks instead of fixed pomodoros (#9), how to judge a task's importance (#10), a "ready" state for tasks (idea bucket, #8).
 
 ### Iteration 2: the AI bridge
-- The AI receives a compact summary prepared by the app (history, notes, ready tasks) and writes changes in a controlled way.
+- The AI receives a compact summary prepared by the app (history, notes, open tasks) and writes changes in a controlled way.
 - AI sessions: spot tasks that are too large, estimate them, break them down together, tidy up the list.
 - Morning planning with the AI, as an option to try.
 - AI session as a task type: when the pomodoro starts, the app opens the AI tool on the right project (if feasible).
@@ -77,6 +75,6 @@ No AI and no external sources. Goal: actually use it every day for work.
 
 ## Open questions (to reason through together, not to research)
 
-- [ ] End of the day: are end-of-pomodoro notes plus an automatic summary enough, or is a closing moment needed too? We start with notes and summary (iteration 1) and decide by using the app.
+- [ ] End of the day: are end-of-pomodoro notes plus the day recap enough, or is a closing moment needed too? We start with notes and the day recap (iteration 1) and decide by using the app.
 
 Questions that need research (AI bridge, focus science, …) are GitHub issues.
