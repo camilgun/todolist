@@ -4,3 +4,8 @@
 # Personal Claude Code settings
 .claude/settings.local.json
 CLAUDE.local.md
+
+# Swift build output
+.build/
+.swiftpm/
+build/
