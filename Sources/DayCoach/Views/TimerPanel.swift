@@ -87,6 +87,13 @@ struct AreaPicker: View {
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(selected ? .isSelected : [])
                 }
+                Button {
+                    model.showSettings()
+                } label: {
+                    Label("Edit areas…", systemImage: "pencil")
+                }
+                .buttonStyle(.borderless)
+                .help("Rename, recolour, archive or add areas (⌘,)")
             }
             // Room for the selected chip's border, which the scroll view would clip.
             .padding(2)

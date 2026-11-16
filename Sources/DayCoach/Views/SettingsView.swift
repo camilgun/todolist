@@ -74,11 +74,13 @@ private struct AreaEditorRow: View {
         let budget = Int((Double(area.dailyBudgetMinutes) / Double(work)).rounded())
         VStack(alignment: .leading, spacing: 8) {
             HStack {
+                // Saved as you type, so archiving the area or closing the window right
+                // after typing keeps the name.
                 TextField("Name", text: $name)
                     .textFieldStyle(.roundedBorder)
                     .focused($nameFocused)
-                    .onSubmit(saveName)
-                    .onChange(of: nameFocused) { _, focused in if !focused { saveName() } }
+                    .onChange(of: name) { saveName() }
+                    .onChange(of: nameFocused) { _, focused in if !focused { restoreNameIfEmpty() } }
                 Button("Archive") { model.setArchived(area, true) }
                     .help("Hide the area; its pomodoros stay in the history")
             }
@@ -116,13 +118,16 @@ private struct AreaEditorRow: View {
         .padding(.vertical, 6)
     }
 
+    /// An area needs a name: an emptied field goes back to the stored one when you leave it.
+    private func restoreNameIfEmpty() {
+        if name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            name = area.name
+        }
+    }
+
     private func saveName() {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else {
-            name = area.name
-            return
-        }
-        guard trimmed != area.name else { return }
+        guard !trimmed.isEmpty, trimmed != area.name else { return }
         var changed = area
         changed.name = trimmed
         model.updateArea(changed)

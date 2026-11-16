@@ -129,7 +129,9 @@ extension AppDatabase {
         area.dailyBudgetMinutes = max(0, area.dailyBudgetMinutes)
         try writer.write { db in
             guard try Area.exists(db, key: area.id) else { throw DayCoachError.areaNotFound }
-            try area.update(db)
+            // Only what the editor changes: archiving goes through `setArchived`, so a
+            // screen holding an older copy can't undo it.
+            try area.update(db, columns: ["name", "color", "dailyBudgetMinutes"])
         }
     }
 

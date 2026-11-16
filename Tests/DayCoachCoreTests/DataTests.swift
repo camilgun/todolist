@@ -106,6 +106,20 @@ import Testing
         stored = try #require(try database.areas().first)
         #expect(!stored.isArchived)
     }
+
+    @Test func editingAnAreaLeavesItsArchivingAlone() throws {
+        let database = try AppDatabase.inMemory()
+        var copy = try database.createArea(name: "New area", color: .blue, dailyBudgetMinutes: 200)
+        try database.setArchived(areaId: copy.id!, true, now: date(2026, 3, 2, 9))
+
+        // A screen still holding the copy from before archiving renames the area.
+        copy.name = "Work"
+        try database.updateArea(copy)
+
+        let stored = try #require(try database.areas().first)
+        #expect(stored.name == "Work")
+        #expect(stored.isArchived)
+    }
 }
 
 @Suite struct ManualFixTests {
